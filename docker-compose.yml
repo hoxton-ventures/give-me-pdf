@@ -1,0 +1,38 @@
+version: '3'
+services:
+  docsend-app:
+    build: ./app
+    container_name: docsend-app
+    restart: always
+    env_file:
+      - .env
+    networks:
+      - docsend-network
+    volumes:
+      - ./logs:/var/log
+  browserless:
+    image: browserless/chrome:1.53-puppeteer-14.4.1
+    environment:
+      DEFAULT_LAUNCH_ARGS=["--start-maximized","--window-size=1920,1100","--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4889.0 Safari/537.36"]
+      DEFAULT_USER_DATA_DIR=/browserless-cache
+      WORKSPACE_DELETE_EXPIRED=true
+      WORKSPACE_EXPIRE_DAYS=7
+      EXIT_ON_HEALTH_FAILURE=true
+      PREBOOT_CHROME=true
+      ENABLE_CORS=true
+      KEEP_ALIVE=true
+      CHROME_REFRESH_TIME=3600000
+      CONNECTION_TIMEOUT=2400000
+      MAX_CONCURRENT_SESSIONS=2
+    networks:
+      - docsend-network
+    ports:
+      - 127.0.0.1:9222:3000
+    restart: always
+    volumes:
+      - ./browser_user_data:/browserless-cache
+
+networks:
+    default:
+        external:
+            name: docsend-network
